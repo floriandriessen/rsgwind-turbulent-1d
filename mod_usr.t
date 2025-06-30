@@ -213,6 +213,8 @@ contains
       w_convert_factor(mom(1))     = unit_velocity
       w_convert_factor(itemplucy_) = unit_temperature
       w_convert_factor(igrad_)     = unit_length / unit_time**2.0d0
+      length_convert_factor        = unit_length
+      time_convert_factor          = unit_time
     endif
 
   end subroutine initglobaldata_usr
