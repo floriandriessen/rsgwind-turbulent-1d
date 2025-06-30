@@ -1,0 +1,48 @@
+!==============================================================================
+! Project : 1D turbulent-driven Red Supergiant wind in radiative equilibrium
+!
+! Aim     : convert binary output to ascii output
+!==============================================================================
+
+&filelist
+  base_filename = 'test/rsgwind'
+  convert_type  = 'oneblock'
+  level_io      = 1
+  saveprim      = .true.
+/
+
+&stoplist
+  dtmin    = 1.0d-20
+  time_max = 100.0d0
+/
+
+&boundlist
+  typeboundary_min1 = 2*'special'
+  typeboundary_max1 = 2*'cont'
+/
+
+&meshlist
+  domain_nx1 = 2048
+  block_nx1  = 2048
+  xprobmin1  = 1.0d0
+  xprobmax1  = 30.0d0
+/
+
+&paramlist
+  courantpar = 0.8d0
+/
+
+&hd_list
+  hd_gravity = .true.
+  hd_energy  = .false.
+  hd_gamma   = 1.0d0
+  He_abundance = 0.0d0
+/
+
+&star_list
+  mstar_sol = 10.0d0
+  rstar_sol = 500.0d0
+  twind_cgs = 3.5d3
+  vturb_cgs = 15.0d5
+  kappa_ross_cgs = 0.01
+/
