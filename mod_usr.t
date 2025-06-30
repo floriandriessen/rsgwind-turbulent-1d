@@ -35,12 +35,12 @@ contains
     call set_coordinate_system("spherical")
     call usr_params_read(par_files)
 
-    usr_set_parameters => initglobaldata_usr
-    usr_init_one_grid  => initial_conditions
-    usr_special_bc     => special_bound
-    usr_gravity        => stellar_gravity
-    usr_set_pthermal   => set_ptotal
-    usr_source         => update_lucy_struct
+    usr_set_parameters   => initglobaldata_usr
+    usr_init_one_grid    => initial_conditions
+    usr_special_bc       => special_bound
+    usr_gravity          => stellar_gravity
+    usr_set_pthermal     => set_ptotal
+    usr_process_adv_grid => update_lucy_struct
 
     call hd_activate()
 
@@ -321,23 +321,21 @@ contains
   end subroutine set_ptotal
 
 !==============================================================================
-! Recompute the Lucy temperature structure as a 'source' so that during the
-! (multi-stage) advection step a new temperature is computed from the updated
-! hydrodynamic variables.
+! Recompute the Lucy temperature structure after the advection for use during
+! the next (multi-stage) advection step.
 !==============================================================================
-  subroutine update_lucy_struct(qdt, ixI^L, ixO^L, iw^LIM, qtC, wCT, qt, w, x)
+  subroutine update_lucy_struct(igrid, level, ixI^L, ixO^L, qt, w, x)
 
     ! Subroutine arguments
-    integer, intent(in)    :: ixI^L, ixO^L, iw^LIM
-    real(8), intent(in)    :: qdt, qtC, qt
-    real(8), intent(in)    :: wCT(ixI^S,1:nw), x(ixI^S,1:ndim)
+    integer, intent(in)    :: igrid, level, ixI^L, ixO^L
+    real(8), intent(in)    :: qt, x(ixI^S,1:ndim)
     real(8), intent(inout) :: w(ixI^S,1:nw)
 
     ! Local variables
     real(8) :: temp_lucy(ixO^S), tau_sph(ixO^S)
     !--------------------------------------------------------------------------
 
-    call calc_lucy_temperature(ixI^L,ixO^L,wCT,x,kappa_ross,temp_lucy,tau_sph)
+    call calc_lucy_temperature(ixI^L,ixO^L,w,x,kappa_ross,temp_lucy,tau_sph)
 
     ! This temperature will be used in hd_get_pthermal calls during the 
     ! multi-stage time step
@@ -346,7 +344,6 @@ contains
     w(ixO^S,igrad_)     = gmstar * gamma_rad / x(ixO^S,1)**2.0d0
 
   end subroutine update_lucy_struct
-
 
 !==============================================================================
 ! Compute the radiative equilibirum temperature structure for a spherically-
