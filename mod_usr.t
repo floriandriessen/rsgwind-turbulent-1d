@@ -40,7 +40,7 @@ contains
     usr_special_bc       => special_bound
     usr_gravity          => stellar_gravity
     usr_set_pthermal     => set_ptotal
-    usr_process_adv_grid => update_lucy_struct
+    usr_process_adv_grid => compute_extra_vars
 
     call hd_activate()
 
@@ -245,7 +245,7 @@ contains
     !  print*,ir,w(ir,rho_)*unit_density,w(ir,mom(1))*unit_velocity
     !enddo
 
-    call calc_lucy_temperature(ixI^L,ixO^L,w,x,kappa_ross,temp_lucy,tau_sph)
+    call compute_lucy_temperature(ixI^L,ixO^L,w,x,kappa_ross,temp_lucy,tau_sph)
     w(ixO^S,itemplucy_) = temp_lucy(ixO^S)
     w(ixO^S,itausph_)   = tau_sph(ixO^S)
 
@@ -297,7 +297,8 @@ contains
   end subroutine special_bound
 
 !==============================================================================
-! Compute the total pressure from thermal pressure and turbulent pressure.
+! Compute the total pressure from thermal pressure, updated based on current
+! hydro state during (multi-stage) time step, and the turbulent pressure.
 !==============================================================================
   subroutine set_ptotal(w, x, ixI^L, ixO^L, pth)
 
@@ -312,7 +313,9 @@ contains
     real(8) :: temp_lucy(ixO^S), tau_sph(ixO^S)
     !--------------------------------------------------------------------------
 
-    csound(ixO^S) = sqrt(w(ixO^S,itemplucy_))
+    call compute_lucy_temperature(ixI^L,ixO^L,w,x,kappa_ross,temp_lucy,tau_sph)
+
+    csound(ixO^S) = sqrt(temp_lucy(ixO^S))
     csound(ixOmax1+1:ixImax1) = csound(ixOmax1)
     csound(ixImin1:ixOmin1-1) = csound(ixOmin1)
 
@@ -321,10 +324,9 @@ contains
   end subroutine set_ptotal
 
 !==============================================================================
-! Recompute the Lucy temperature structure after the advection for use during
-! the next (multi-stage) advection step.
+! Store extra variables as output.
 !==============================================================================
-  subroutine update_lucy_struct(igrid, level, ixI^L, ixO^L, qt, w, x)
+  subroutine compute_extra_vars(igrid, level, ixI^L, ixO^L, qt, w, x)
 
     ! Subroutine arguments
     integer, intent(in)    :: igrid, level, ixI^L, ixO^L
@@ -335,21 +337,19 @@ contains
     real(8) :: temp_lucy(ixO^S), tau_sph(ixO^S)
     !--------------------------------------------------------------------------
 
-    call calc_lucy_temperature(ixI^L,ixO^L,w,x,kappa_ross,temp_lucy,tau_sph)
+    call compute_lucy_temperature(ixI^L,ixO^L,w,x,kappa_ross,temp_lucy,tau_sph)
 
-    ! This temperature will be used in hd_get_pthermal calls during the 
-    ! multi-stage time step
     w(ixO^S,itemplucy_) = temp_lucy(ixO^S)
     w(ixO^S,itausph_)   = tau_sph(ixO^S)
     w(ixO^S,igrad_)     = gmstar * gamma_rad / x(ixO^S,1)**2.0d0
 
-  end subroutine update_lucy_struct
+  end subroutine compute_extra_vars
 
 !==============================================================================
 ! Compute the radiative equilibirum temperature structure for a spherically-
 ! modified gray atmosphere (Lucy 1971).
 !==============================================================================
-  subroutine calc_lucy_temperature(ixI^L, ixO^L, w, x, kappa, temp, tau)
+  subroutine compute_lucy_temperature(ixI^L, ixO^L, w, x, kappa, temp, tau)
 
     ! Subroutine arguments
     integer, intent(in)    :: ixI^L, ixO^L
@@ -380,7 +380,7 @@ contains
     !enddo
     !call mpistop('te')
 
-  end subroutine calc_lucy_temperature
+  end subroutine compute_lucy_temperature
 
 !==============================================================================
 ! Compute the spherically-modified optical depth for the temperature structure.
