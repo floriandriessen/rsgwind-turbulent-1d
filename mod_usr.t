@@ -231,21 +231,17 @@ contains
     real(8), intent(inout) :: w(ixI^S,1:nw)
 
     ! Local variables
-    !integer :: ir
     real(8) :: temp_lucy(ixO^S), tau_sph(ixO^S)
     real(8) :: sfac
     !--------------------------------------------------------------------------
     
-    sfac = 1.0d0 - 0.01d0*csound
+    ! Start at half the sound speed at stellar surface
+    sfac = 1.0d0 - (0.5d0*csound / vinf)
 
     where (x(ixI^S,1) >= rstar)
       w(ixI^S,mom(1)) = vinf * ( 1.0d0 - sfac*rstar / x(ixI^S,1) )
       w(ixI^S,rho_) = mdot / (4.0d0*dpi * w(ixI^S,mom(1)) * x(ixI^S,1)**2.0d0)
     endwhere
-
-    !do ir=ixOmin1,ixOmax1
-    !  print*,ir,w(ir,rho_)*unit_density,w(ir,mom(1))*unit_velocity
-    !enddo
 
     call compute_lucy_temperature(ixI^L,ixO^L,w,x,kappa_ross,temp_lucy,tau_sph)
     w(ixO^S,itemplucy_) = temp_lucy(ixO^S)
@@ -253,10 +249,6 @@ contains
 
     call hd_to_conserved(ixI^L,ixO^L,w,x)
 
-    !do ir=ixOmin1,ixOmax1
-    !  print*,ir,w(ir,itemplucy_)*unit_temperature,w(ir,itausph_)
-    !enddo
-    !call mpistop('test')
   end subroutine initial_conditions
 
 !==============================================================================
@@ -361,7 +353,6 @@ contains
     real(8), intent(inout) :: temp(ixO^S), tau(ixO^S)
 
     ! Local variables
-    !integer :: ir
     real(8) :: wdil(ixO^S), tauloc(ixO^S)
     !--------------------------------------------------------------------------
 
@@ -376,11 +367,6 @@ contains
 
     ! Set the minimal cut-off at floor temperature
     temp(ixO^S) = max(temp(ixO^S), tfloor)
-
-    !do ir=ixOmin1,ixOmax1
-    !  print*,ir,temp_lucy(ir)*unit_temperature,msphtau(ir)
-    !enddo
-    !call mpistop('te')
 
   end subroutine compute_lucy_temperature
 
@@ -404,15 +390,12 @@ contains
     tau0 = kappa * w(ixOmax1,rho_) * rstar**2.0d0 / x(ixOmax1,1)
     dtau(ixO^S) = -kappa * w(ixO^S,rho_) * (rstar / x(ixO^S,1))**2.0d0
 
-    !print*,tau0
-
     taudum(ixOmax1) = tau0
     do ir = ixOmax1-1,ixOmin1,-1
       taudum(ir) = taudum(ir+1) &
            + 0.5d0 * ( dtau(ir) + dtau(ir+1) ) * ( x(ir,1) - x(ir+1,1) )
-      !if (ir>ixOmax1-10) print*,ir,taudum(ir)
     enddo
-    !print*
+
     tau_out(ixO^S) = taudum(ixO^S)
 
   end subroutine get_mspherical_tau

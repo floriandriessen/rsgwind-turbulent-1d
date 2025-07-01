@@ -12,7 +12,6 @@
 /
 
 &stoplist
-  dtmin    = 1.0d-20
   time_max = 100.0d0
 /
 
@@ -28,15 +27,10 @@
   xprobmax1  = 30.0d0
 /
 
-&paramlist
-  courantpar = 0.8d0
-/
-
 &hd_list
   hd_gravity = .true.
   hd_energy  = .false.
   hd_gamma   = 1.0d0
-  He_abundance = 0.0d0
 /
 
 &star_list

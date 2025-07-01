@@ -51,7 +51,6 @@
   hd_gravity = .true.
   hd_energy  = .false.
   hd_gamma   = 1.0d0
-  He_abundance = 0.0d0
 /
 
 &star_list
