@@ -7,20 +7,21 @@
 module mod_usr
 
   use mod_hd
-  use mod_constants, only: const_c, const_G, const_LSun, const_MSun, &
+  use mod_constants,      only: const_c, const_G, const_LSun, const_MSun, &
        const_RSun, mp_cgs, kB_cgs, const_years, const_sigma
+  use mod_kind_parameter, only: dp
 
   implicit none
 
   ! User input parameters
-  real(8) :: mstar_sol, rstar_sol, twind_cgs, vturb_cgs, kappa_ross_cgs
+  real(dp) :: mstar_sol, rstar_sol, twind_cgs, vturb_cgs, kappa_ross_cgs
 
   ! Dimensionless variables for computations
-  real(8) :: mstar, rstar, rhosurf, twind, csound, csoundeff, vturb
-  real(8) :: gamma_rad, kappa_ross, gmstar, mdot, rcrit, tfloor, vinf
+  real(dp) :: mstar, rstar, rhosurf, twind, csound, csoundeff, vturb
+  real(dp) :: gamma_rad, kappa_ross, gmstar, mdot, rcrit, tfloor, vinf
 
   ! Hydrogen, helium mass fractions and floor temperature for simulation
-  real(8), parameter :: x_h = 1.0d0, y_he = 0.0d0, tfloor_cgs = 100.0d0
+  real(dp), parameter :: x_h = 1.0d0, y_he = 0.0d0, tfloor_cgs = 100.0d0
 
   ! Indices of extra output variables
   integer :: itemplucy_, itausph_, igrad_
@@ -81,10 +82,10 @@ contains
   subroutine initglobaldata_usr
 
     character(len=*), parameter :: label_fmt = '(A30, " = ", ES12.6)'
-    real(8) :: mstar_cgs, rstar_cgs, lstar_cgs, log_g_cgs, log_geff_cgs
-    real(8) :: rhosurf_cgs, mumol, csound_cgs, hscale_cgs, vesceff_cgs
-    real(8) :: rcrit_cgs, csoundeff_cgs, mdot_cgs, vinf_cgs
-    real(8) :: unit_ggrav, unit_mass, alpha, pthsurf
+    real(dp) :: mstar_cgs, rstar_cgs, lstar_cgs, log_g_cgs, log_geff_cgs
+    real(dp) :: rhosurf_cgs, mumol, csound_cgs, hscale_cgs, vesceff_cgs
+    real(dp) :: rcrit_cgs, csoundeff_cgs, mdot_cgs, vinf_cgs
+    real(dp) :: unit_ggrav, unit_mass, alpha, pthsurf
     !--------------------------------------------------------------------------
 
     mstar_cgs = mstar_sol * const_MSun
@@ -226,13 +227,13 @@ contains
   subroutine initial_conditions(ixI^L, ixO^L, w, x)
 
     ! Subroutine arguments
-    integer, intent(in)    :: ixI^L, ixO^L
-    real(8), intent(in)    :: x(ixI^S,1:ndim)
-    real(8), intent(inout) :: w(ixI^S,1:nw)
+    integer, intent(in)     :: ixI^L, ixO^L
+    real(dp), intent(in)    :: x(ixI^S,1:ndim)
+    real(dp), intent(inout) :: w(ixI^S,1:nw)
 
     ! Local variables
-    real(8) :: temp_lucy(ixO^S), tau_sph(ixO^S)
-    real(8) :: sfac
+    real(dp) :: temp_lucy(ixO^S), tau_sph(ixO^S)
+    real(dp) :: sfac
     !--------------------------------------------------------------------------
     
     ! Start at half the sound speed at stellar surface
@@ -258,9 +259,9 @@ contains
   subroutine special_bound(qt, ixI^L, ixB^L, iB, w, x)
 
     ! Subroutine arguments
-    integer, intent(in)    :: ixI^L, ixB^L, iB
-    real(8), intent(in)    :: qt, x(ixI^S,1:ndim)
-    real(8), intent(inout) :: w(ixI^S,1:nw)
+    integer, intent(in)     :: ixI^L, ixB^L, iB
+    real(dp), intent(in)    :: qt, x(ixI^S,1:ndim)
+    real(dp), intent(inout) :: w(ixI^S,1:nw)
 
     ! Local variable
     integer :: ir
@@ -297,14 +298,14 @@ contains
   subroutine set_ptotal(w, x, ixI^L, ixO^L, pth)
 
     ! Subroutine arguments
-    integer, intent(in)  :: ixI^L, ixO^L
-    real(8), intent(in)  :: x(ixI^S,1:ndim)
-    real(8), intent(in)  :: w(ixI^S,1:nw)
-    real(8), intent(out) :: pth(ixI^S)
+    integer, intent(in)   :: ixI^L, ixO^L
+    real(dp), intent(in)  :: x(ixI^S,1:ndim)
+    real(dp), intent(in)  :: w(ixI^S,1:nw)
+    real(dp), intent(out) :: pth(ixI^S)
 
     ! Local variables
-    real(8) :: csound(ixI^S)
-    real(8) :: temp_lucy(ixO^S), tau_sph(ixO^S)
+    real(dp) :: csound(ixI^S)
+    real(dp) :: temp_lucy(ixO^S), tau_sph(ixO^S)
     !--------------------------------------------------------------------------
 
     call compute_lucy_temperature(ixI^L,ixO^L,w,x,kappa_ross,temp_lucy,tau_sph)
@@ -323,12 +324,12 @@ contains
   subroutine compute_extra_vars(igrid, level, ixI^L, ixO^L, qt, w, x)
 
     ! Subroutine arguments
-    integer, intent(in)    :: igrid, level, ixI^L, ixO^L
-    real(8), intent(in)    :: qt, x(ixI^S,1:ndim)
-    real(8), intent(inout) :: w(ixI^S,1:nw)
+    integer, intent(in)     :: igrid, level, ixI^L, ixO^L
+    real(dp), intent(in)    :: qt, x(ixI^S,1:ndim)
+    real(dp), intent(inout) :: w(ixI^S,1:nw)
 
     ! Local variables
-    real(8) :: temp_lucy(ixO^S), tau_sph(ixO^S)
+    real(dp) :: temp_lucy(ixO^S), tau_sph(ixO^S)
     !--------------------------------------------------------------------------
 
     call compute_lucy_temperature(ixI^L,ixO^L,w,x,kappa_ross,temp_lucy,tau_sph)
@@ -346,14 +347,14 @@ contains
   subroutine compute_lucy_temperature(ixI^L, ixO^L, w, x, kappa, temp, tau)
 
     ! Subroutine arguments
-    integer, intent(in)    :: ixI^L, ixO^L
-    real(8), intent(in)    :: x(ixI^S,1:ndim)
-    real(8), intent(in)    :: w(ixI^S,1:nw)
-    real(8), intent(in)    :: kappa
-    real(8), intent(inout) :: temp(ixO^S), tau(ixO^S)
+    integer, intent(in)     :: ixI^L, ixO^L
+    real(dp), intent(in)    :: x(ixI^S,1:ndim)
+    real(dp), intent(in)    :: w(ixI^S,1:nw)
+    real(dp), intent(in)    :: kappa
+    real(dp), intent(inout) :: temp(ixO^S), tau(ixO^S)
 
     ! Local variables
-    real(8) :: wdil(ixO^S), tauloc(ixO^S)
+    real(dp) :: wdil(ixO^S), tauloc(ixO^S)
     !--------------------------------------------------------------------------
 
     call get_mspherical_tau(ixI^L,ixO^L,w,x,kappa,tauloc)
@@ -376,15 +377,15 @@ contains
   subroutine get_mspherical_tau(ixI^L, ixO^L, w, x, kappa, tau_out)
 
     ! Subroutine arguments
-    integer, intent(in)    :: ixI^L, ixO^L
-    real(8), intent(in)    :: x(ixI^S,1:ndim)
-    real(8), intent(in)    :: w(ixI^S,1:nw)
-    real(8), intent(in)    :: kappa
-    real(8), intent(inout) :: tau_out(ixO^S)
+    integer, intent(in)     :: ixI^L, ixO^L
+    real(dp), intent(in)    :: x(ixI^S,1:ndim)
+    real(dp), intent(in)    :: w(ixI^S,1:nw)
+    real(dp), intent(in)    :: kappa
+    real(dp), intent(inout) :: tau_out(ixO^S)
 
     ! Local variables
-    integer :: ir
-    real(8) :: tau0, dtau(ixO^S), taudum(ixO^S)
+    integer  :: ir
+    real(dp) :: tau0, dtau(ixO^S), taudum(ixO^S)
     !--------------------------------------------------------------------------
 
     tau0 = kappa * w(ixOmax1,rho_) * rstar**2.0d0 / x(ixOmax1,1)
@@ -406,9 +407,9 @@ contains
   subroutine stellar_gravity(ixI^L, ixO^L, wCT, x, gravity_field)
 
     ! Subroutine arguments
-    integer, intent(in)  :: ixI^L, ixO^L
-    real(8), intent(in)  :: x(ixI^S,1:ndim), wCT(ixI^S,1:nw)
-    real(8), intent(out) :: gravity_field(ixI^S,ndim)
+    integer, intent(in)   :: ixI^L, ixO^L
+    real(dp), intent(in)  :: x(ixI^S,1:ndim), wCT(ixI^S,1:nw)
+    real(dp), intent(out) :: gravity_field(ixI^S,ndim)
     !--------------------------------------------------------------------------
 
     gravity_field(ixO^S,:) = 0.0d0
