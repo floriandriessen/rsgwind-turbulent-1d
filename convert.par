@@ -5,7 +5,7 @@
 !==============================================================================
 
 &filelist
-  base_filename = 'test/rsgwind'
+  base_filename = 'out/rsgwind'
   convert_type  = 'oneblock'
   level_io      = 1
   saveprim      = .true.

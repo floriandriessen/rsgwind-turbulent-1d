@@ -2,13 +2,13 @@
 ! Project : 1D turbulent-driven Red Supergiant wind in radiative equilibrium
 !
 ! Aim     : Hydrodynamic generalisation of the steady-state wind model in 
-!           Kee et al. (2021), A&A, 646
+!           Kee et al. (2021), A&A 646
 !
 ! Config  : setup.pl -d=1
 !==============================================================================
 
 &filelist
-  base_filename = 'test/rsgwind'
+  base_filename = 'out/rsgwind'
 /
 
 &savelist
@@ -19,7 +19,7 @@
 /
 
 &stoplist
-  dtmin    = 1.0d-20
+  dtmin    = 1.0d-10
   time_max = 30.0d0
 /
 
